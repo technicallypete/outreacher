@@ -12,7 +12,7 @@ A lead management system with an MCP server for Claude Desktop and a Next.js Saa
 
 ```
 Claude Desktop
-  └── bin/outreacher-mcp-*  (Go stdio binary, WSL)
+  └── bin/outreacher-mcp-0.1.0-linux-amd64  (Go stdio binary, WSL)
         └── localhost:5432  (standalone postgres, volume: outreacher_standalone_data)
 
 Browser / Next.js frontend
@@ -40,9 +40,15 @@ Two runtime modes — standalone binary for Claude Desktop, Docker Compose for d
 | User | Password | Role |
 |---|---|---|
 | `admin` | `admin` | Owns schema, runs DDL and migrations |
-| `app` | `app` | Runtime — DML only (SELECT/INSERT/UPDATE/DELETE) |
+| `app` | `app` | Next.js runtime — member of `app_crud` + direct nextauth grants |
+| `mcp` | `mcp` | MCP server runtime — member of `app_crud` |
+| `reporter` | `reporter` | Read-only access — member of `app_read` |
 
-`DATABASE_URL` → `app` user. `DATABASE_ADMIN_URL` → `admin` user (goose only).
+Group roles (no LOGIN) — DEFAULT PRIVILEGES auto-cover new tables/sequences/types:
+- `app_crud` — SELECT/INSERT/UPDATE/DELETE on app schema
+- `app_read` — SELECT on app schema
+
+`DATABASE_URL` → `mcp` user (MCP server) or `app` user (Next.js). `DATABASE_ADMIN_URL` → `admin` user (goose only).
 
 ---
 
@@ -53,22 +59,22 @@ Two runtime modes — standalone binary for Claude Desktop, Docker Compose for d
 | Table | Key fields |
 |---|---|
 | `organizations` | id, name, slug (unique), is_system |
-| `brands` | id, organization_id, name, slug, is_default |
+| `campaigns` | id, organization_id, name, slug, is_default |
 | `users` | id, email†, slug (unique), name, is_system |
 | `organization_memberships` | organization_id, user_id, role (owner\|admin\|member) |
-| `brand_memberships` | brand_id, user_id, role (admin\|member\|viewer) |
+| `campaign_memberships` | campaign_id, user_id, role (admin\|member\|viewer) |
 
-### Domain (scoped to `brand_id`)
+### Domain (scoped to `campaign_id`)
 
 | Table | Key fields |
 |---|---|
-| `companies` | id, brand_id, name, domain, industry, linkedin_url |
-| `signals` | id, description — global, no brand scope |
+| `companies` | id, campaign_id, name, domain, industry, linkedin_url |
+| `signals` | id, description — global, no campaign scope |
 | `signal_keywords` | signal_id, keyword — global |
 | `company_signals` | company_id, signal_id |
-| `leads` | id, brand_id, name, email†, linkedin_url†, company_id, title, status, score, location, phone |
+| `leads` | id, campaign_id, name, email†, linkedin_url†, company_id, title, status, score, location, phone |
 | `notes` | id, lead_id, content, created_at |
-| `contact_identifiers` | brand_id, type, value — dedup key, PK is (brand_id, type, value) |
+| `contact_identifiers` | campaign_id, type, value — dedup key, PK is (campaign_id, type, value) |
 
 † nullable. Leads are deduplicated by `contact_identifiers`, not by email.
 
@@ -78,29 +84,26 @@ Lead status flow: `new → contacted → qualified → disqualified → converte
 
 ## MCP Tools
 
-### Domain tools (all accept optional `brand_id`; defaults to startup brand)
+### Domain tools (all accept optional `campaign_id`; defaults to startup campaign)
 
 | Tool | Description |
 |---|---|
-| `search_leads` | Filter by name, email, status, company, brand_id |
+| `search_leads` | Filter by name, email, status, company, campaign_id |
 | `get_lead` | Full lead detail with company and notes |
 | `update_lead_status` | Advance a lead through the status flow |
 | `create_followup_note` | Append a note to a lead |
-| `import_leads` | Import from Gojiberry CSV text — batch max 20 rows per call |
-| `import_leads_file` | Import from a CSV file path on disk |
+| `import_csv` | Import from CSV text (auto-detects Gojiberry, Revli formats) |
+| `search_companies` | Search companies by name or domain |
+| `get_company` | Full company detail with signals |
 
-### Org / brand / user management
+### Campaign management (stdio binary only)
 
 | Tool | Description |
 |---|---|
-| `list_organizations` | List all orgs the current user belongs to |
-| `list_brands` | List all brands for the current org (or specified org_id) |
-| `create_organization` | Create a new org + Default brand; assign current user as owner |
-| `rename_brand` | Rename a brand's display name (slug unchanged) |
-| `create_brand` | Create a new brand under the current org |
-| `create_user` | Create a new user |
-| `assign_user_to_org` | Add a user to an org with a role |
-| `assign_user_to_brand` | Add a user to a brand with a role |
+| `list_campaigns` | List all campaigns for the current org |
+| `get_campaign` | Get campaign details by id |
+| `create_campaign` | Create a new campaign under the current org |
+| `rename_campaign` | Rename a campaign's display name |
 
 ---
 
@@ -109,15 +112,18 @@ Lead status flow: `new → contacted → qualified → disqualified → converte
 **Build the binary:**
 
 ```bash
-bun run build:mcp
-# outputs bin/outreacher-mcp-<version>  (stdio)
-#         bin/outreacher-server-<version> (SSE)
+npm run build:mcp
+# outputs bin/outreacher-mcp-0.1.0-linux-amd64   (stdio, WSL)
+#         bin/outreacher-mcp-0.1.0-darwin-arm64   (stdio, macOS Apple Silicon)
+#         bin/outreacher-mcp-0.1.0-darwin-amd64   (stdio, macOS Intel)
+#         bin/outreacher-mcp-0.1.0-windows-amd64.exe
+#         bin/outreacher-server-0.1.0             (SSE server)
 ```
 
 **Start standalone postgres:**
 
 ```bash
-docker run -d --name outreacher-postgres --restart always \
+docker run -d --name outreacher-pg --restart always \
   -p 5432:5432 \
   -e POSTGRES_DB=outreacher \
   -e POSTGRES_USER=admin \
@@ -130,11 +136,14 @@ docker run -d --name outreacher-postgres --restart always \
 **Run migrations:**
 
 ```bash
+PG_IP=$(docker inspect outreacher-pg --format '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}')
 docker run --rm \
   -v "$(pwd)/mcp:/src" -w /src \
+  --add-host=postgres:$PG_IP \
   golang:1.24-alpine \
-  sh -c "go install github.com/pressly/goose/v3/cmd/goose@v3.22.0 && \
-         goose -dir migrations postgres 'postgresql://admin:admin@host.docker.internal:5432/outreacher' up"
+  sh -c 'go run github.com/pressly/goose/v3/cmd/goose@latest \
+    -dir migrations postgres \
+    "postgresql://admin:admin@postgres:5432/outreacher" up'
 ```
 
 **Claude Desktop config** (`Settings → Developer → Edit Config`):
@@ -144,20 +153,26 @@ docker run --rm \
   "mcpServers": {
     "outreacher": {
       "command": "wsl.exe",
-      "args": ["~/Code/VitruvianTech/outreacher/bin/outreacher-mcp-0.1.0"],
+      "args": ["/home/<user>/Code/VitruvianTech/outreacher/bin/outreacher-mcp-0.1.0-linux-amd64"],
       "env": {
-        "DATABASE_URL": "postgresql://app:app@localhost:5432/outreacher"
+        "DATABASE_URL": "postgresql://mcp:mcp@localhost:5432/outreacher",
+        "ANTHROPIC_API_KEY": "sk-ant-...",
+        "MCP_LLM_PROVIDER": "anthropic"
       }
     }
   }
 }
 ```
 
-Restart Claude Desktop — the hammer icon confirms tools are connected. The binary idempotently bootstraps `system_default_org`, `system_default_user`, and the Default brand on first run.
+Replace `<user>` with your WSL username. `ANTHROPIC_API_KEY` enables LLM-based CSV extraction for unknown formats; omit to use the built-in parsers only. Restart Claude Desktop after saving — the hammer icon confirms tools are connected.
+
+The binary idempotently bootstraps `system_default_org`, `system_default_user`, and the Default campaign on first run.
 
 ---
 
 ## Mode 2 — Docker Compose (dev stack)
+
+Copy `.env.example` to `.env` and fill in API keys, then:
 
 ```bash
 docker compose up --build -d
@@ -175,8 +190,9 @@ docker compose up --build -d
 docker run --rm --network outreacher_default \
   -v "$(pwd)/mcp:/src" -w /src \
   golang:1.24-alpine \
-  sh -c "go install github.com/pressly/goose/v3/cmd/goose@v3.22.0 && \
-         goose -dir migrations postgres 'postgresql://admin:admin@postgres:5432/outreacher' up"
+  sh -c 'go run github.com/pressly/goose/v3/cmd/goose@latest \
+    -dir migrations postgres \
+    "postgresql://admin:admin@outreacher-postgres-1:5432/outreacher" up'
 ```
 
 If the mcp container exited while waiting for migrations, restart it:
@@ -189,4 +205,4 @@ docker compose restart mcp
 
 ## Imports
 
-Sample imports live in `imports/<source>/` with date-stamped filenames (e.g. `imports/gojiberry/gojiberry-selected-contacts-2026-04-04.csv`). Add new source exports as new subdirectories.
+`fixtures/imports/` is gitignored — it contains live personal data used for local development and debugging only. Supported formats: Gojiberry, Revli startup contacts, Revli investor contacts, Revli startup companies, Revli investor companies.
