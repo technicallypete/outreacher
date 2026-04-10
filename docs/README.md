@@ -6,33 +6,8 @@ a **Claude-powered single-tenant MCP workflow** and a **scalable multi-tenant Sa
 ---
 
 ## 📑 Table of Contents
-- [🧩 Single-Tenant MCP](#-single-tenant-mcp)
 - [🌐 Multi-Tenant SaaS](#-multi-tenant-saas)
-
----
-
-## 🧩 Single-Tenant MCP
-
-The single-tenant MCP flow runs through **Claude Desktop**, where CSV data is ingested and processed via the MCP server.
-
-### 📥 Claude Import CSV Slice
-Initial stage of the CSV import flow inside the MCP environment.
-
-![Claude Import CSV Slide](./images/Screenshot_2026-04-10_110324.png)
-
----
-
-### 📦 Claude Import CSV Remaining
-Continuation of the import as the remaining dataset is processed.
-
-![Claude Import CSV Remaining](./images/Screenshot_2026-04-10_110525.png)
-
----
-
-### ⚙️ What This Shows
-- Claude-driven import workflow  
-- Slice-based ingestion for control and validation  
-- Local / single-tenant execution model  
+- [🧩 Single-Tenant MCP](#-single-tenant-mcp)
 
 ---
 
@@ -85,12 +60,37 @@ Viewing and exploring leads after import and processing.
 
 ---
 
+## 🧩 Single-Tenant MCP
+
+The single-tenant MCP flow runs through **Claude Desktop**, where CSV data is ingested and processed via the MCP server.
+
+### 📥 Claude Import CSV Slice
+Initial stage of the CSV import flow inside the MCP environment.
+
+![Claude Import CSV Slide](./images/Screenshot_2026-04-10_110324.png)
+
+---
+
+### 📦 Claude Import CSV Remaining
+Continuation of the import as the remaining dataset is processed.
+
+![Claude Import CSV Remaining](./images/Screenshot_2026-04-10_110525.png)
+
+---
+
+### ⚙️ What This Shows
+- Claude-driven import workflow  
+- Slice-based ingestion for control and validation  
+- Local / single-tenant execution model  
+
+---
+
 ## 🧠 Summary
 
 These flows demonstrate two complementary ways to operate the system:
 
-- 🧩 **Single-Tenant MCP** → controlled, Claude-driven import workflow  
 - 🌐 **Multi-Tenant SaaS** → scalable, team-ready lead management platform  
+- 🧩 **Single-Tenant MCP** → controlled, Claude-driven import workflow  
 
 ---
 
