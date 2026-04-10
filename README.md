@@ -1,5 +1,18 @@
 # Outreacher
 
+> [!TIP]
+> This project demonstrates and act as a foundation boilerplate for 2-mode operation of an MCP as:
+> 1) Single-tenant Claude Desktop Go binary (individual use)
+> 2) Multi-tenant Next.js SaaS + chat LLM + MCP Go server (hosted environment)
+>
+> The project architecture includes:
+> * AI SDK + assistant-ui chat
+> * Example MCP development
+> * Shared backend code for both binary and server operation
+> * Claude Code (and other development agent) usage and best practices
+> * Docker best practices for development and production
+> * Database security role/schema best practices (adopted early for scale)
+
 A lead management system with an MCP server for Claude Desktop and a Next.js SaaS frontend.
 
 > **All dev tooling runs via Docker.** You do not need Go, Node, Bun, goose, or sqlc installed locally.
