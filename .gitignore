@@ -27,7 +27,7 @@ node_modules
 bin/
 
 # fixture CSVs contain real personal data — keep local only
-fixtures/
+fixtures/imports/
 
 # air hot reload
 mcp/tmp/
