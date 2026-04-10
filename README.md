@@ -1,5 +1,11 @@
 # Outreacher
 
+A lead management system with an MCP server for Claude Desktop and a Next.js SaaS frontend.
+
+> **All dev tooling runs via Docker.** You do not need Go, Node, Bun, goose, or sqlc installed locally.
+>
+> **Developers:** see `CLAUDE.md` for commands, conventions, and test instructions.
+
 > [!TIP]
 > This project demonstrates and act as a foundation boilerplate for 2-mode operation of an MCP as:
 > 1) Single-tenant Claude Desktop Go binary (individual use)
@@ -17,12 +23,6 @@
 
 See the full demo with screenshots and flows here:  
 👉 [View Demo Docs](./docs/README.md)
-
-A lead management system with an MCP server for Claude Desktop and a Next.js SaaS frontend.
-
-> **All dev tooling runs via Docker.** You do not need Go, Node, Bun, goose, or sqlc installed locally.
->
-> **Developers:** see `CLAUDE.md` for commands, conventions, and test instructions.
 
 ---
 
