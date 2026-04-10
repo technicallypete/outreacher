@@ -1,6 +1,6 @@
 # Outreacher
 
-A lead management system with an MCP server for Claude Desktop and a Next.js SaaS frontend.
+An AI-powered lead management CRM system with an MCP server for Claude Desktop and a Next.js SaaS frontend.
 
 > **All dev tooling runs via Docker.** You do not need Go, Node, Bun, goose, or sqlc installed locally.
 >
