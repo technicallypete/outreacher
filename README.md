@@ -224,3 +224,10 @@ docker compose restart mcp
 ## Imports
 
 `fixtures/imports/` is gitignored — it contains live personal data used for local development and debugging only. Supported formats: Gojiberry, Revli startup contacts, Revli investor contacts, Revli startup companies, Revli investor companies.
+
+
+## © Copyright
+
+© 2026 Vitruvian Technology, Corp. All rights reserved.
+
+This code is provided under a noncommercial license for evaluation and research purposes only.
