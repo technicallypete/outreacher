@@ -1,5 +1,8 @@
 ## License
 
+Copyright (c) 2026 Vitruvian Technology, Corp.
+All rights reserved.
+
 This project is released under the PolyForm Noncommercial License.
 
 ### What this means:
@@ -10,4 +13,4 @@ This project is released under the PolyForm Noncommercial License.
 
 This repository represents an early demo version (v0.1.0) of a proprietary system.
 
-For commercial use, contact: peter@vestive.com
+For commercial use, contact: services@vitruviantech.com
