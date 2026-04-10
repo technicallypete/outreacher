@@ -13,6 +13,11 @@
 > * Docker best practices for development and production
 > * Database security role/schema best practices (adopted early for scale)
 
+## 📸 Demo & Walkthrough
+
+See the full demo with screenshots and flows here:  
+👉 [View Demo Docs](./docs/README.md)
+
 A lead management system with an MCP server for Claude Desktop and a Next.js SaaS frontend.
 
 > **All dev tooling runs via Docker.** You do not need Go, Node, Bun, goose, or sqlc installed locally.
