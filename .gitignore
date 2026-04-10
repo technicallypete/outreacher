@@ -1,0 +1,34 @@
+# deps
+node_modules/
+
+# Next.js
+.next/
+out/
+
+# SQLite
+outreacher.db
+outreacher.db-shm
+outreacher.db-wal
+
+# env
+.env
+.env.local
+.env*.local
+
+# misc
+.DS_Store
+*.pem
+.claude
+
+# bun
+node_modules
+
+# compiled Go binaries
+bin/
+
+# fixture CSVs contain real personal data — keep local only
+fixtures/
+
+# air hot reload
+mcp/tmp/
+*tsbuildinfo

@@ -1,0 +1,16 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+  cmd = "go build -o /tmp/air/server ./cmd/server"
+  bin = "/tmp/air/server"
+  include_ext = ["go"]
+  exclude_dir = ["internal/db/gen"]
+  delay = 500
+  kill_delay = "200ms"
+
+[log]
+  time = true
+
+[misc]
+  clean_on_exit = true

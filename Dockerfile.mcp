@@ -1,0 +1,35 @@
+# ── Dev (hot reload) ─────────────────────────────────────────────────────────
+FROM golang:1.24-alpine AS dev
+
+RUN go install github.com/air-verse/air@v1.61.1
+
+WORKDIR /src
+COPY mcp/go.mod mcp/go.sum ./
+RUN go mod download
+
+CMD ["air", "-c", ".air.toml"]
+
+# ── Build ────────────────────────────────────────────────────────────────────
+FROM golang:1.23-alpine AS builder
+
+WORKDIR /src
+
+COPY mcp/go.mod mcp/go.sum ./
+RUN go mod download
+
+COPY mcp/ .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
+    -o /bin/mcp ./cmd/mcp
+
+RUN CGO_ENABLED=0 GOOS=linux go build -trimpath -ldflags="-s -w" \
+    -o /bin/server ./cmd/server
+
+# ── Runtime ──────────────────────────────────────────────────────────────────
+FROM gcr.io/distroless/static-debian12
+
+COPY --from=builder /bin/mcp /bin/mcp
+COPY --from=builder /bin/server    /bin/server
+
+# HTTP server by default; override with /bin/mcp for stdio transport
+CMD ["/bin/server"]
