@@ -7,7 +7,7 @@ A lead management system with an MCP server for Claude Desktop and a Next.js Saa
 > **Developers:** see `CLAUDE.md` for commands, conventions, and test instructions.
 
 > [!TIP]
-> This project demonstrates and act as a foundation boilerplate for 2-mode operation of an MCP as:
+> This project demonstrates and act as a foundation boilerplate for 2-mode operation of an AI MCP as:
 > 1) Single-tenant Claude Desktop Go binary (individual use)
 > 2) Multi-tenant Next.js SaaS + chat LLM + MCP Go server (hosted environment)
 >
