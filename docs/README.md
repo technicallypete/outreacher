@@ -1,7 +1,7 @@
 # Demo Walkthrough
 
 ## Import Flow
-![Import CSV](./images/Screenshot 2026-04-10 102552.png)
+![Import CSV](./images/Screenshot_2026-04-10_102552.png)
 
 ## Reconciliation Graph
-![Reconciliation](./images/Screenshot 2026-04-10 103224.png)
+![Reconciliation](./images/Screenshot_2026-04-10_103224.png)
