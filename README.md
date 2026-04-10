@@ -169,14 +169,13 @@ docker run --rm \
 ```json
 {
   "mcpServers": {
-    "outreacher": {
+    "Outreacher": {
       "command": "wsl.exe",
-      "args": ["/home/<user>/Code/VitruvianTech/outreacher/bin/outreacher-mcp-0.1.0-linux-amd64"],
-      "env": {
-        "DATABASE_URL": "postgresql://mcp:mcp@localhost:5432/outreacher",
-        "ANTHROPIC_API_KEY": "sk-ant-...",
-        "MCP_LLM_PROVIDER": "anthropic"
-      }
+      "args": [
+        "~/Code/outreacher/bin/outreacher-mcp-0.1.0-linux-amd64",
+        "--database-url", "postgresql://mcp:mcp@localhost:5432/outreacher",
+        "--openai-api-key", "sk-proj-..."
+      ]
     }
   }
 }
